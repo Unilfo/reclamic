@@ -1,1 +1,3 @@
 # reclamic
+
+npx expo start
