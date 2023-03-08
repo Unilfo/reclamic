@@ -1,14 +1,15 @@
-import { Alert, SafeAreaView, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
-import { useState } from 'react';
-import { Keyboard } from 'react-native';
-import { COLORS } from '../const/colors/index';
-import { Button } from '../components/Button';
-import { Input } from '../components/Input';
-import { Loader } from '../components/Loader';
+import {Alert, SafeAreaView, StyleSheet, Text, TouchableWithoutFeedback, View} from 'react-native';
+import {useState} from 'react';
+import {Keyboard} from 'react-native';
+import {COLORS} from '../const/colors/index';
+import {Button} from '../components/Button';
+import {Input} from '../components/Input';
+import {Loader} from '../components/Loader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import i18n from '../local/local';
 
-export const Login = ({ navigation }) => {
-  const [inputs, setInputs] = useState({ email: '', password: '' });
+export const Login = ({navigation}) => {
+  const [inputs, setInputs] = useState({email: '', password: ''});
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -16,11 +17,11 @@ export const Login = ({ navigation }) => {
     Keyboard.dismiss();
     let isValid = true;
     if (!inputs.email) {
-      handleError('Please input email', 'email');
+      handleError(i18n.t('login.emailError'), 'email');
       isValid = false;
     }
     if (!inputs.password) {
-      handleError('Please input password', 'password');
+      handleError(i18n.t('login.passwordError'), 'password');
       isValid = false;
     }
     if (isValid) {
@@ -34,7 +35,7 @@ export const Login = ({ navigation }) => {
       setLoading(false);
 
       //delete
-      await AsyncStorage.setItem('userData', JSON.stringify({ email: inputs.email, password: inputs.password }));
+      await AsyncStorage.setItem('userData', JSON.stringify({email: inputs.email, password: inputs.password}));
 
       let userData = await AsyncStorage.getItem('userData');
 
@@ -43,7 +44,7 @@ export const Login = ({ navigation }) => {
 
         if (inputs.email === userData.email && inputs.password === userData.password) {
           navigation.navigate('Main');
-          await AsyncStorage.setItem('userData', JSON.stringify({ ...userData, loggedIn: true }));
+          await AsyncStorage.setItem('userData', JSON.stringify({...userData, loggedIn: true}));
         } else {
           Alert.alert('Error', 'Invalid Details');
         }
@@ -54,25 +55,26 @@ export const Login = ({ navigation }) => {
   };
 
   const handleOnchange = (text, input) => {
-    setInputs((prevState) => ({ ...prevState, [input]: text }));
+    setInputs((prevState) => ({...prevState, [input]: text}));
   };
 
   const handleError = (error, input) => {
-    setErrors((prevState) => ({ ...prevState, [input]: error }));
+    setErrors((prevState) => ({...prevState, [input]: error}));
   };
+
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <SafeAreaView style={styles.wrapper}>
-        <Loader visible={loading} />
+        <Loader visible={loading}/>
         <View style={styles.loginContainer}>
-          <Text style={styles.loginTitle}>welcome to RECLAMIC</Text>
+          <Text style={styles.loginTitle}> {i18n.t("login.title")}</Text>
           <Input
             onChangeText={(text) => handleOnchange(text, 'email')}
             onFocus={() => handleError(null, 'email')}
             iconName="email-outline"
             label="Email"
-            placeholder="Enter your email address"
+            placeholder={i18n.t('login.emailPlaceholder')}
             error={errors.email}
           />
           <Input
@@ -80,11 +82,14 @@ export const Login = ({ navigation }) => {
             onFocus={() => handleError(null, 'password')}
             iconName="lock-outline"
             label="Password"
-            placeholder="Enter your password"
+            placeholder={i18n.t('login.passwordPlaceholder')}
             error={errors.password}
             password
           />
-          <Button title={'Log In'} style={styles.button} onPress={validate} />
+          <Text style={styles.registration} onPress={() => navigation.navigate('Registration')}>
+            {i18n.t('login.registration')}
+          </Text>
+          <Button title={i18n.t('login.enter')} style={styles.button} onPress={validate}/>
         </View>
       </SafeAreaView>
     </TouchableWithoutFeedback>
@@ -120,4 +125,12 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontWeight: 'bold',
   },
+  registration: {
+    marginTop: 10,
+    marginBottom: 30,
+    textAlign: 'center',
+    color: COLORS.blue,
+    fontSize: 14,
+    fontWeight: 'bold',
+  }
 });
